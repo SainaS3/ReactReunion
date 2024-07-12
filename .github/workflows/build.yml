@@ -26,8 +26,17 @@ jobs:
     - name: Install CocoaPods
       run: sudo gem install cocoapods
 
+    - name: Display Ruby Version
+      run: ruby -v
+
+    - name: Display Pod Version
+      run: pod --version
+
+    - name: Check Podfile
+      run: cat ios/Podfile
+
     - name: Install Pods
-      run: npx pod-install
+      run: pod install --repo-update
 
     - name: Build Mac Catalyst app
       run: xcodebuild -workspace ios/YourApp.xcworkspace -scheme YourApp -sdk macosx
