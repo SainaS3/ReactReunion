@@ -1,0 +1,55 @@
+name: Build React Native App
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-ios:
+    runs-on: macos-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '16'
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Install CocoaPods
+      run: sudo gem install cocoapods
+
+    - name: Install Pods
+      run: npx pod-install
+
+    - name: Build Mac Catalyst app
+      run: xcodebuild -workspace ios/YourApp.xcworkspace -scheme YourApp -sdk macosx
+
+  build-windows:
+    runs-on: windows-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '16'
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Install Windows dependencies
+      run: npm install --global windows-build-tools
+
+    - name: Build UWP app
+      run: |
+        cd windows
+        npx react-native run-windows --release
