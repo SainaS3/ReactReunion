@@ -134,6 +134,9 @@ jobs:
         $components = $components -join ','
         choco install visualstudio2022buildtools --params "'--add $components --includeRecommended --quiet --wait'"
 
+    - name: Add msbuild to PATH
+      run: echo "$env:Program Files\Microsoft Visual Studio\2022\BuildTools\MSBuild\Current\Bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8
+
     - name: Enable Developer Mode
       run: |
         Set-ExecutionPolicy Bypass -Scope Process -Force
@@ -145,9 +148,6 @@ jobs:
 
     - name: Enable Long Paths
       run: Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem" -Name "LongPathsEnabled" -Value 1 -Type DWord
-
-    - name: Add msbuild to PATH
-      run: echo "::add-path::C:\Program Files\Microsoft Visual Studio\2022\BuildTools\MSBuild\Current\Bin"
 
     - name: Install Yarn
       run: choco install yarn
@@ -161,7 +161,7 @@ jobs:
     - name: Install CppWinRT VSIX
       run: |
         $url = "https://cppwinrtteam.gallerycdn.vsassets.io/extensions/cppwinrtteam/cppwinrt101804264/2.0.240405.15/1712356759635/Microsoft.Windows.CppWinRT.vsix"
-        $destination = "C:\Temp\Microsoft.Windows.CppWinRT.vsix"
+        $destination = "$env:Temp\Microsoft.Windows.CppWinRT.vsix"
         if (-not (Test-Path -Path "C:\Temp")) {
             New-Item -ItemType Directory -Path "C:\Temp"
         }
