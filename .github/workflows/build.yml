@@ -128,14 +128,11 @@ jobs:
     - name: Install .NET SDK
       run: choco install dotnet-6.0-sdk-4xx
 
-    - name: Install Git
-      run: choco install git
-
     - name: Install CppWinRT VSIX
       run: |
-        $url = "https://marketplace.visualstudio.com/_apis/public/gallery/publishers/CppWinRTTeam/vsextensions/cppwinrt101804264/2.0.210304.5/vspackage";
-        Write-Verbose "Downloading CppWinRT VSIX from $url";
-        Invoke-WebRequest -UseBasicParsing $url -OutFile $env:TEMP\Microsoft.Windows.CppWinRT.vsix;
+        $url = "https://marketplace.visualstudio.com/_apis/public/gallery/publishers/CppWinRTTeam/vsextensions/cppwinrt101804264/2.0.210304.5/vspackage"
+        Write-Verbose "Downloading CppWinRT VSIX from $url"
+        Invoke-WebRequest -UseBasicParsing $url -OutFile $env:TEMP\Microsoft.Windows.CppWinRT.vsix
         $vsWherePath = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
         $vsInstallPath = & $vsWherePath -latest -products * -requires Microsoft.Component.MSBuild -property installationPath
         $vsixInstaller = "$vsInstallPath\Common7\IDE\VSIXInstaller.exe"
