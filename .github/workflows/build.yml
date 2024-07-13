@@ -26,9 +26,6 @@ jobs:
     - name: Install Watchman
       run: brew install watchman
 
-    - name: Install dependencies
-      run: npm install
-
     - name: Set up Ruby
       uses: ruby/setup-ruby@v1
       with:
@@ -37,7 +34,7 @@ jobs:
     - name: Remove node_modules
       run: rm -rf node_modules
 
-    - name: Reinstall npm dependencies
+    - name: Install dependencies
       run: npm install
 
     - name: Install CocoaPods
