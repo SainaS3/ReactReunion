@@ -36,10 +36,12 @@ jobs:
       run: cat ios/Podfile
 
     - name: Install Pods
+      working-directory: ios
       run: pod install --repo-update
 
     - name: Build Mac Catalyst app
-      run: xcodebuild -workspace ios/YourApp.xcworkspace -scheme YourApp -sdk macosx
+      working-directory: ios
+      run: xcodebuild -workspace YourApp.xcworkspace -scheme YourApp -sdk macosx
 
   build-windows:
     runs-on: windows-latest
