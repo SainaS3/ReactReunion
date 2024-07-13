@@ -140,7 +140,7 @@ jobs:
 
     - name: Set Boost environment variables
       run: |
-        $env:BOOST_ROOT = "C:\Program Files\boost\boost_1_78_0"
+        $env:BOOST_ROOT = "C:\Program Files\boost\boost_1_84_0"
         $env:INCLUDE = "$env:BOOST_ROOT;$env:INCLUDE"
         $env:LIB = "$env:BOOST_ROOT\stage\lib;$env:LIB"
 
