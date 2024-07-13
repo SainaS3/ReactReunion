@@ -177,7 +177,7 @@ jobs:
       run: |
         $msbuildPath = "C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\MSBuild\Current\Bin\MSBuild.exe"
         if (Test-Path $msbuildPath) {
-          & $msbuildPath /p:Configuration=Release /p:Platform=$matrix.arch /t:Build windows/ReactReunion.sln
+          & $msbuildPath /p:Configuration=Release /p:Platform=${{ matrix.arch }} /t:Build windows/ReactReunion.sln
         } else {
           Write-Host "MSBuild.exe not found at $msbuildPath"
           exit 1
