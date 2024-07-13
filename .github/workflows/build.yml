@@ -10,7 +10,7 @@ on:
 
 jobs:
   build-uikit:
-    runs-on: macos-latest
+    runs-on: macos-13
     strategy:
       matrix:
         arch: [x86_64, arm64]
@@ -48,16 +48,13 @@ jobs:
     - name: Set up Ruby
       uses: ruby/setup-ruby@v1
       with:
-        ruby-version: '3.0'
+        ruby-version: '3.5.14'
 
     - name: Remove node_modules (if cache is not hit)
       run: rm -rf node_modules
 
     - name: Install dependencies
       run: npm install
-
-    - name: Install CocoaPods
-      run: sudo gem install cocoapods
 
     - name: Install dependencies
       run: pod install --project-directory=ios
@@ -80,7 +77,7 @@ jobs:
 
     - name: Build Mac Catalyst app
       working-directory: ios
-      run: xcodebuild -workspace ReactReunion.xcworkspace -scheme ReactReunion -sdk iphoneos -destination 'platform=macOS,variant=Mac Catalyst'
+      run: xcodebuild -workspace ReactReunion.xcworkspace -scheme ReactReunion -sdk iphoneos -destination 'platform=macOS,variant=Mac Catalyst' -arch ${{ matrix.arch }}
 
     - name: Fail if previous step failed
       if: failure()
@@ -108,12 +105,6 @@ jobs:
       with:
         node-version: '18'
 
-    - name: Install Chocolatey
-      run: |
-        Set-ExecutionPolicy Bypass -Scope Process -Force
-        [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
-        Invoke-WebRequest -Uri https://community.chocolatey.org/install.ps1 -UseBasicParsing | Invoke-Expression
-
     - name: Add msbuild to PATH
       uses: microsoft/setup-msbuild@v2
 
@@ -129,23 +120,15 @@ jobs:
     - name: Enable Long Paths
       run: Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem" -Name "LongPathsEnabled" -Value 1 -Type DWord
 
-    - name: Install Yarn
-      run: choco install yarn
-
     - name: Install dependencies
       run: npm install
 
     - name: Install MSBuild Log Viewer
       run: choco install msbuild-structured-log-viewer
 
-    - name: Install .NET SDK
-      run: choco install dotnet-6.0-sdk-4xx
-
     - name: Build UWP app
-      run: |
-        msbuild /t:Restore "/p:RestoreProjectStyle=PackagesConfig;RestorePackagesConfig=true" /p:Configuration=Release /p:Platform=${{ matrix.arch }} windows/ReactReunion.sln
-        msbuild /restore /p:Configuration=Release /p:Platform=${{ matrix.arch }} /t:Build windows/ReactReunion.sln
-        msbuild /p:Configuration=Release /p:Platform=${{ matrix.arch }} /t:Build windows/ReactReunion.sln
+      working-directory: windows
+      run: msbuild /restore /t:Restore "/p:RestoreProjectStyle=PackagesConfig;RestorePackagesConfig=true" /p:Configuration=Release /p:Platform=${{ matrix.arch }} ReactReunion.sln
 
     - name: Fail if previous step failed
       if: failure()
