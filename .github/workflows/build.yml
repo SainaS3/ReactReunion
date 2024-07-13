@@ -41,7 +41,7 @@ jobs:
 
     - name: Build Mac Catalyst app
       working-directory: ios
-      run: xcodebuild -workspace YourApp.xcworkspace -scheme YourApp -sdk macosx
+      run: xcodebuild -workspace ReactReunion.xcworkspace -scheme ReactReunion -sdk macosx
 
   build-windows:
     runs-on: windows-latest
@@ -57,8 +57,11 @@ jobs:
     - name: Install dependencies
       run: npm install
 
-    - name: Install Visual Studio Build Tools
-      run: winget install -e --id Microsoft.VisualStudio.2022.BuildTools
+    - name: Install Chocolatey
+      run: |
+        Set-ExecutionPolicy Bypass -Scope Process -Force
+        [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
+        Invoke-WebRequest -Uri https://community.chocolatey.org/install.ps1 -UseBasicParsing | Invoke-Expression
 
     - name: Ensure Visual Studio Components
       run: |
@@ -75,7 +78,7 @@ jobs:
             'Microsoft.VisualStudio.Workload.Universal'
         )
         $components = $components -join ','
-        Start-Process -FilePath "C:\Program Files (x86)\Microsoft Visual Studio\Installer\vs_installer.exe" -ArgumentList "modify --installPath ""C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools"" --add $components --includeRecommended --quiet --wait" -NoNewWindow -Wait
+        choco install visualstudio2022buildtools --params "'--add $components --includeRecommended --quiet --wait'"
 
     - name: Enable Developer Mode
       run: |
@@ -89,20 +92,26 @@ jobs:
     - name: Enable Long Paths
       run: Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem" -Name "LongPathsEnabled" -Value 1 -Type DWord
 
-    - name: Install Node.js
-      run: winget install OpenJS.NodeJS.LTS --version 18.18.0
-
     - name: Install Yarn
-      run: winget install Yarn.Yarn
+      run: choco install yarn
 
     - name: Install MSBuild Log Viewer
-      run: winget install KirillOsenkov.MSBuildStructuredLogViewer
+      run: choco install msbuild-structured-log-viewer
 
     - name: Install .NET SDK
-      run: winget install Microsoft.DotNet.SDK.6
+      run: choco install dotnetcore-sdk --version=6.0.100
 
     - name: Install Git
-      run: winget install Git.Git
+      run: choco install git
+
+    - name: Install CppWinRT VSIX
+      run: |
+        $url = "https://marketplace.visualstudio.com/_apis/public/gallery/publishers/CppWinRTTeam/vsextensions/cppwinrt101804264/2.0.210304.5/vspackage"
+        Invoke-WebRequest -Uri $url -OutFile $env:TEMP\Microsoft.Windows.CppWinRT.vsix
+        $vsWherePath = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
+        $vsInstallPath = & $vsWherePath -latest -products * -requires Microsoft.Component.MSBuild -property installationPath
+        $vsixInstaller = "$vsInstallPath\Common7\IDE\VSIXInstaller.exe"
+        Start-Process -FilePath $vsixInstaller -ArgumentList "/a /q $env:TEMP\Microsoft.Windows.CppWinRT.vsix" -NoNewWindow -Wait
 
     - name: Build UWP app
       run: |
