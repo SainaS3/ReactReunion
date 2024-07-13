@@ -11,7 +11,6 @@ on:
 jobs:
   build-ios:
     runs-on: macos-latest
-
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
@@ -21,16 +20,28 @@ jobs:
       with:
         node-version: '18'
 
+    - name: Install Watchman
+      run: brew install watchman
+
     - name: Install dependencies
       run: npm install
-
-    - name: Install watchman
-      run: brew install watchman
 
     - name: Set up Ruby
       uses: ruby/setup-ruby@v1
       with:
         ruby-version: '3.0' # Adjust the Ruby version as needed
+
+    - name: Remove node_modules
+      run: rm -rf node_modules
+
+    - name: Reinstall npm dependencies
+      run: npm install
+
+    - name: Kill node processes
+      run: killall -9 node
+
+    - name: Start npm with cache reset
+      run: npm start -- --reset-cache
 
     - name: Install CocoaPods
       run: sudo gem install cocoapods
@@ -65,9 +76,12 @@ jobs:
       working-directory: ios
       run: xcodebuild -workspace ReactReunion.xcworkspace -scheme ReactReunion -sdk macosx
 
+    - name: Fail if previous step failed
+      if: failure()
+      run: exit 1
+
   build-windows:
     runs-on: windows-latest
-
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
@@ -140,3 +154,7 @@ jobs:
       run: |
         cd windows
         npx react-native run-windows --release
+
+    - name: Fail if previous step failed
+      if: failure()
+      run: exit 1
