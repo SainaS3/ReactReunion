@@ -157,11 +157,18 @@ jobs:
 
     - name: Install CppWinRT VSIX
       run: |
-        $url = "https://cppwinrtteam.gallerycdn.vsassets.io/extensions/cppwinrtteam/cppwinrt101804264/2.0.240405.15/1712356759635/Microsoft.Windows.CppWinRT.vsix";
-        Write-Verbose "Downloading CppWinRT VSIX from $url";
-        Invoke-WebRequest -UseBasicParsing $url -OutFile $env:TEMP\Microsoft.Windows.CppWinRT.vsix;
-        $vsixInstaller = "C:\Program Files (x86)\Microsoft Visual Studio\Installer\vsixinstaller.exe"
-        Start-Process -FilePath $vsixInstaller -ArgumentList "/a /q $env:TEMP\Microsoft.Windows.CppWinRT.vsix" -NoNewWindow -Wait
+        $url = "https://cppwinrtteam.gallerycdn.vsassets.io/extensions/cppwinrtteam/cppwinrt101804264/2.0.240405.15/1712356759635/Microsoft.Windows.CppWinRT.vsix"
+        $destination = "C:\Temp\Microsoft.Windows.CppWinRT.vsix"
+        if (-not (Test-Path -Path "C:\Temp")) {
+            New-Item -ItemType Directory -Path "C:\Temp"
+        }
+        Invoke-WebRequest -Uri $url -OutFile $destination
+        $vsixInstallerPath = "$env:Program Files\Microsoft Visual Studio\2022\BuildTools\Common7\IDE\VSIXInstaller.exe"
+        if (Test-Path $vsixInstallerPath) {
+            & $vsixInstallerPath $destination
+        } else {
+            Write-Host "VSIXInstaller.exe not found. Please verify the path to the Visual Studio Build Tools 2022 installation."
+        }
 
     - name: Build UWP app
       run: msbuild /p:Configuration=Release /p:Platform=$matrix.arch /t:Build windows/ReactReunion.sln
