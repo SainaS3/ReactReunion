@@ -13,10 +13,26 @@ jobs:
     runs-on: macos-latest
     strategy:
       matrix:
-        arch: [arm64]
+        arch: [x86_64, arm64]
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
+
+    - name: Setup cache for node_modules
+      uses: actions/cache@v2
+      with:
+        path: node_modules
+        key: ${{ runner.os }}-node_modules-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-node_modules-
+
+    - name: Setup cache for CocoaPods
+      uses: actions/cache@v2
+      with:
+        path: ios/Pods
+        key: ${{ runner.os }}-pods-${{ hashFiles('**/Podfile.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-pods-
 
     - name: Clean build folder
       run: xcodebuild clean -workspace ios/ReactReunion.xcworkspace -scheme ReactReunion
@@ -34,7 +50,7 @@ jobs:
       with:
         ruby-version: '3.0'
 
-    - name: Remove node_modules
+    - name: Remove node_modules (if cache is not hit)
       run: rm -rf node_modules
 
     - name: Install dependencies
@@ -74,10 +90,18 @@ jobs:
     runs-on: windows-latest
     strategy:
       matrix:
-        arch: [arm64]
+        arch: [x64, arm64]
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
+
+    - name: Setup cache for node_modules
+      uses: actions/cache@v2
+      with:
+        path: node_modules
+        key: ${{ runner.os }}-node_modules-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-node_modules-
 
     - name: Setup Node.js
       uses: actions/setup-node@v3
@@ -140,8 +164,7 @@ jobs:
         Start-Process -FilePath $vsixInstaller -ArgumentList "/a /q $env:TEMP\Microsoft.Windows.CppWinRT.vsix" -NoNewWindow -Wait
 
     - name: Build UWP app
-      run: |
-        msbuild /p:Configuration=Release /p:Platform=$matrix.arch /t:Build windows/ReactReunion.sln
+      run: msbuild /p:Configuration=Release /p:Platform=$matrix.arch /t:Build windows/ReactReunion.sln
 
     - name: Fail if previous step failed
       if: failure()
