@@ -138,6 +138,12 @@ jobs:
     - name: Install Boost
       run: choco install boost-msvc-14.3
 
+    - name: Set Boost environment variables
+      run: |
+        $env:BOOST_ROOT = "C:\Program Files\boost\boost_1_78_0"
+        $env:INCLUDE = "$env:BOOST_ROOT;$env:INCLUDE"
+        $env:LIB = "$env:BOOST_ROOT\stage\lib;$env:LIB"
+
     - name: Install MSBuild Log Viewer
       run: choco install msbuild-structured-log-viewer
 
