@@ -135,15 +135,6 @@ jobs:
     - name: Install dependencies
       run: npm install
 
-    - name: Install Boost
-      run: choco install boost-msvc-14.3
-
-    - name: Set Boost environment variables
-      run: |
-        $env:BOOST_ROOT = "C:\Program Files\boost\boost_1_84_0"
-        $env:INCLUDE = "$env:BOOST_ROOT;$env:INCLUDE"
-        $env:LIB = "$env:BOOST_ROOT\stage\lib;$env:LIB"
-
     - name: Install MSBuild Log Viewer
       run: choco install msbuild-structured-log-viewer
 
@@ -151,7 +142,10 @@ jobs:
       run: choco install dotnet-6.0-sdk-4xx
 
     - name: Build UWP app
-      run: msbuild /p:Configuration=Release /p:Platform=${{ matrix.arch }} /t:Build windows/ReactReunion.sln
+      run: |
+        msbuild /t:Restore "/p:RestoreProjectStyle=PackagesConfig;RestorePackagesConfig=true" /p:Configuration=Release /p:Platform=${{ matrix.arch }} windows/ReactReunion.sln
+        msbuild /restore /p:Configuration=Release /p:Platform=${{ matrix.arch }} /t:Build windows/ReactReunion.sln
+        msbuild /p:Configuration=Release /p:Platform=${{ matrix.arch }} /t:Build windows/ReactReunion.sln
 
     - name: Fail if previous step failed
       if: failure()
