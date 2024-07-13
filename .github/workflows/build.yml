@@ -116,6 +116,11 @@ jobs:
 
     - name: Ensure Visual Studio Components
       run: |
+        $vsInstallerPath = "https://aka.ms/vs/17/release/vs_buildtools.exe"
+        Write-Output "Downloading Visual Studio Build Tools..."
+        $installerFilePath = "vs_buildtools.exe"
+        Invoke-WebRequest -Uri $vsInstallerPath -OutFile $installerFilePath
+
         $components = @(
             'Microsoft.Component.MSBuild',
             'Microsoft.VisualStudio.Component.VC.Tools.ARM64',
@@ -134,9 +139,20 @@ jobs:
             'Microsoft.VisualStudio.Workload.NativeDesktop',
             'Microsoft.VisualStudio.Workload.Universal'
         )
-        $components = $components -join ','
-        $workloads = $workloads -join ','
-        choco install visualstudio2022buildtools --params "'--add $components --add $workloads --includeRecommended --quiet --wait'"
+
+        $arguments = @("--quiet", "--wait", "--norestart", "--nocache", "--installPath C:\BuildTools")
+
+        foreach ($component in $components) {
+            $arguments += "--add $component"
+        }
+        foreach ($workload in $workloads) {
+            $arguments += "--add $workload"
+        }
+        $arguments += "--includeRecommended"
+        Write-Output "Installing Visual Studio Build Tools components..."
+        Start-Process -FilePath $installerFilePath -ArgumentList $arguments -NoNewWindow -Wait
+
+        Write-Output "Installation complete."
 
     - name: Verify Visual Studio Components
       run: |
