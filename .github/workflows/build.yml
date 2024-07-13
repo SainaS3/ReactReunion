@@ -48,7 +48,7 @@ jobs:
     - name: Set up Ruby
       uses: ruby/setup-ruby@v1
       with:
-        ruby-version: '3.5.14'
+        ruby-version: '3.0'
 
     - name: Remove node_modules (if cache is not hit)
       run: rm -rf node_modules
