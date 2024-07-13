@@ -57,8 +57,52 @@ jobs:
     - name: Install dependencies
       run: npm install
 
-    - name: Install Windows dependencies
-      run: npm install --global windows-build-tools
+    - name: Install Visual Studio Build Tools
+      run: winget install -e --id Microsoft.VisualStudio.2022.BuildTools
+
+    - name: Ensure Visual Studio Components
+      run: |
+        $components = @(
+            'Microsoft.Component.MSBuild',
+            'Microsoft.VisualStudio.Component.VC.Tools.x86.x64',
+            'Microsoft.VisualStudio.ComponentGroup.UWP.Support',
+            'Microsoft.VisualStudio.ComponentGroup.NativeDesktop.Core',
+            'Microsoft.VisualStudio.Component.Windows10SDK.19041',
+            'Microsoft.VisualStudio.Component.Windows11SDK.22621',
+            'Microsoft.VisualStudio.ComponentGroup.UWP.VC',
+            'Microsoft.VisualStudio.Workload.ManagedDesktop',
+            'Microsoft.VisualStudio.Workload.NativeDesktop',
+            'Microsoft.VisualStudio.Workload.Universal'
+        )
+        $components = $components -join ','
+        Start-Process -FilePath "C:\Program Files (x86)\Microsoft Visual Studio\Installer\vs_installer.exe" -ArgumentList "modify --installPath ""C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools"" --add $components --includeRecommended --quiet --wait" -NoNewWindow -Wait
+
+    - name: Enable Developer Mode
+      run: |
+        Set-ExecutionPolicy Bypass -Scope Process -Force
+        $RegistryKeyPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\AppModelUnlock"
+        if (-not (Test-Path -Path $RegistryKeyPath)) {
+          New-Item -Path $RegistryKeyPath -ItemType Directory -Force
+        }
+        Set-ItemProperty -Path $RegistryKeyPath -Name AllowDevelopmentWithoutDevLicense -Value 1 -Type DWord
+
+    - name: Enable Long Paths
+      run: Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem" -Name "LongPathsEnabled" -Value 1 -Type DWord
+
+    - name: Install Node.js
+      run: winget install OpenJS.NodeJS.LTS --version 18.18.0
+
+    - name: Install Yarn
+      run: winget install Yarn.Yarn
+
+    - name: Install MSBuild Log Viewer
+      run: winget install KirillOsenkov.MSBuildStructuredLogViewer
+
+    - name: Install .NET SDK
+      run: winget install Microsoft.DotNet.SDK.6
+
+    - name: Install Git
+      run: winget install Git.Git
 
     - name: Build UWP app
       run: |
