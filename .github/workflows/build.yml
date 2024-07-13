@@ -127,7 +127,7 @@ jobs:
             'Microsoft.VisualStudio.ComponentGroup.UWP.VC',
             'Microsoft.VisualStudio.ComponentGroup.UWP.Support',
             'Microsoft.VisualStudio.ComponentGroup.UWP.BuildTools',
-            'Microsoft.VisualStudio.ComponentGroup.UWP.VC.BuildTools',
+            'Microsoft.VisualStudio.ComponentGroup.UWP.VC.BuildTools'
         )
         $workloads = @(
             'Microsoft.VisualStudio.Workload.ManagedDesktop',
