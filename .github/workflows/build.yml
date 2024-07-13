@@ -37,9 +37,6 @@ jobs:
     - name: Reinstall npm dependencies
       run: npm install
 
-    - name: Start npm with cache reset
-      run: npm start -- --reset-cache
-
     - name: Install CocoaPods
       run: sudo gem install cocoapods
 
