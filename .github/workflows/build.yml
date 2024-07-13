@@ -118,15 +118,16 @@ jobs:
       run: |
         $components = @(
             'Microsoft.Component.MSBuild',
+            'Microsoft.VisualStudio.Component.VC.Tools.ARM64',
             'Microsoft.VisualStudio.Component.VC.Tools.x86.x64',
-            'Microsoft.VisualStudio.ComponentGroup.UWP.Support',
-            'Microsoft.VisualStudio.ComponentGroup.NativeDesktop.Core',
             'Microsoft.VisualStudio.Component.Windows10SDK.19041',
             'Microsoft.VisualStudio.Component.Windows11SDK.22621',
+            'Microsoft.VisualStudio.Component.UWP.VC.ARM64',
+            'Microsoft.VisualStudio.ComponentGroup.NativeDesktop.Core',
             'Microsoft.VisualStudio.ComponentGroup.UWP.VC',
-            'Microsoft.VisualStudio.Workload.ManagedDesktop',
-            'Microsoft.VisualStudio.Workload.NativeDesktop',
-            'Microsoft.VisualStudio.Workload.Universal'
+            'Microsoft.VisualStudio.ComponentGroup.UWP.Support',
+            'Microsoft.VisualStudio.ComponentGroup.UWP.BuildTools',
+            'Microsoft.VisualStudio.ComponentGroup.UWP.VC.BuildTools',
         )
         $workloads = @(
             'Microsoft.VisualStudio.Workload.ManagedDesktop',
