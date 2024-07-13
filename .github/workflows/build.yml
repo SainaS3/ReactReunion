@@ -134,8 +134,8 @@ jobs:
         $components = $components -join ','
         choco install visualstudio2022buildtools --params "'--add $components --includeRecommended --quiet --wait'"
 
-    - name: Add msbuild to PATH
-      run: echo "$env:Program Files\Microsoft Visual Studio\2022\BuildTools\MSBuild\Current\Bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8
+    - name: Add MSBuild to PATH
+      run: echo "C:\Program Files\Microsoft Visual Studio\2022\BuildTools\MSBuild\Current\Bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8
 
     - name: Enable Developer Mode
       run: |
@@ -161,12 +161,12 @@ jobs:
     - name: Install CppWinRT VSIX
       run: |
         $url = "https://cppwinrtteam.gallerycdn.vsassets.io/extensions/cppwinrtteam/cppwinrt101804264/2.0.240405.15/1712356759635/Microsoft.Windows.CppWinRT.vsix"
-        $destination = "$env:Temp\Microsoft.Windows.CppWinRT.vsix"
+        $destination = "C:\Temp\Microsoft.Windows.CppWinRT.vsix"
         if (-not (Test-Path -Path "C:\Temp")) {
             New-Item -ItemType Directory -Path "C:\Temp"
         }
         Invoke-WebRequest -Uri $url -OutFile $destination
-        $vsixInstallerPath = "$env:Program Files\Microsoft Visual Studio\2022\BuildTools\Common7\IDE\VSIXInstaller.exe"
+        $vsixInstallerPath = "C:\Program Files\Microsoft Visual Studio\2022\BuildTools\Common7\IDE\VSIXInstaller.exe"
         if (Test-Path $vsixInstallerPath) {
             & $vsixInstallerPath $destination
         } else {
@@ -175,7 +175,13 @@ jobs:
 
     - name: Build UWP app
       run: |
-        & "C:\Program Files\Microsoft Visual Studio\2022\BuildTools\MSBuild\Current\Bin\MSBuild.exe" /p:Configuration=Release /p:Platform=$matrix.arch /t:Build windows/ReactReunion.sln
+        $msbuildPath = "C:\Program Files\Microsoft Visual Studio\2022\BuildTools\MSBuild\Current\Bin\MSBuild.exe"
+        if (Test-Path $msbuildPath) {
+          & $msbuildPath /p:Configuration=Release /p:Platform=$matrix.arch /t:Build windows/ReactReunion.sln
+        } else {
+          Write-Host "MSBuild.exe not found at $msbuildPath"
+          exit 1
+        }
 
     - name: Fail if previous step failed
       if: failure()
