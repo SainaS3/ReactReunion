@@ -23,11 +23,19 @@ jobs:
     - name: Install dependencies
       run: npm install
 
+    - name: Set up Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: '3.0' # Adjust the Ruby version as needed
+
     - name: Install CocoaPods
       run: sudo gem install cocoapods
 
     - name: Clean build folder
       run: xcodebuild clean -workspace ios/ReactReunion.xcworkspace -scheme ReactReunion
+
+    - name: Install dependencies
+      run: pod install --project-directory=ios
 
     - name: Reinstall Pods
       working-directory: ios
@@ -109,7 +117,7 @@ jobs:
       run: choco install msbuild-structured-log-viewer
 
     - name: Install .NET SDK
-      run: choco install dotnetcore-sdk --version=6.0.100
+      run: choco install dotnet-6.0-sdk-4xx
 
     - name: Install Git
       run: choco install git
