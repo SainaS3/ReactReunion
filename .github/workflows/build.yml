@@ -127,9 +127,9 @@ jobs:
 
     - name: Install CppWinRT VSIX
       run: |
-        $url = "https://marketplace.visualstudio.com/_apis/public/gallery/publishers/CppWinRTTeam/vsextensions/cppwinrt101804264/2.0.210304.5/vspackage"
-        Write-Verbose "Downloading CppWinRT VSIX from $url"
-        Invoke-WebRequest -UseBasicParsing $url -OutFile $env:TEMP\Microsoft.Windows.CppWinRT.vsix
+        $url = "https://cppwinrtteam.gallerycdn.vsassets.io/extensions/cppwinrtteam/cppwinrt101804264/2.0.240405.15/1712356759635/Microsoft.Windows.CppWinRT.vsix";
+        Write-Verbose "Downloading CppWinRT VSIX from $url";
+        Invoke-WebRequest -UseBasicParsing $url -OutFile $env:TEMP\Microsoft.Windows.CppWinRT.vsix;
         $vsWherePath = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
         $vsInstallPath = & $vsWherePath -latest -products * -requires Microsoft.Component.MSBuild -property installationPath
         $vsixInstaller = "$vsInstallPath\Common7\IDE\VSIXInstaller.exe"
