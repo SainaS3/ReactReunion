@@ -114,48 +114,8 @@ jobs:
         [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
         Invoke-WebRequest -Uri https://community.chocolatey.org/install.ps1 -UseBasicParsing | Invoke-Expression
 
-    - name: Ensure Visual Studio Components
-      run: |
-        $vsInstallerPath = "https://aka.ms/vs/17/release/vs_buildtools.exe"
-        Write-Output "Downloading Visual Studio Build Tools..."
-        $installerFilePath = "vs_buildtools.exe"
-        Invoke-WebRequest -Uri $vsInstallerPath -OutFile $installerFilePath
-
-        $components = @(
-            'Microsoft.Component.MSBuild',
-            'Microsoft.VisualStudio.Component.VC.Tools.ARM64',
-            'Microsoft.VisualStudio.Component.VC.Tools.x86.x64',
-            'Microsoft.VisualStudio.Component.Windows10SDK.19041',
-            'Microsoft.VisualStudio.Component.Windows11SDK.22621',
-            'Microsoft.VisualStudio.Component.UWP.VC.ARM64',
-            'Microsoft.VisualStudio.ComponentGroup.NativeDesktop.Core',
-            'Microsoft.VisualStudio.ComponentGroup.UWP.VC',
-            'Microsoft.VisualStudio.ComponentGroup.UWP.Support',
-            'Microsoft.VisualStudio.ComponentGroup.UWP.BuildTools',
-            'Microsoft.VisualStudio.ComponentGroup.UWP.VC.BuildTools'
-        )
-        $workloads = @(
-            'Microsoft.VisualStudio.Workload.ManagedDesktop',
-            'Microsoft.VisualStudio.Workload.NativeDesktop',
-            'Microsoft.VisualStudio.Workload.Universal'
-        )
-
-        $arguments = @("--quiet", "--wait", "--norestart", "--nocache", "--installPath C:\BuildTools")
-
-        foreach ($component in $components) {
-            $arguments += "--add $component"
-        }
-        foreach ($workload in $workloads) {
-            $arguments += "--add $workload"
-        }
-        $arguments += "--includeRecommended"
-        Write-Output "Installing Visual Studio Build Tools components..."
-        Start-Process -FilePath $installerFilePath -ArgumentList $arguments -NoNewWindow -Wait
-
-        Write-Output "Installation complete."
-
-    - name: Add MSBuild to PATH
-      run: echo "C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\MSBuild\Current\Bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8
+    - name: Add msbuild to PATH
+      uses: microsoft/setup-msbuild@v2
 
     - name: Enable Developer Mode
       run: |
@@ -181,30 +141,8 @@ jobs:
     - name: Install .NET SDK
       run: choco install dotnet-6.0-sdk-4xx
 
-    - name: Install CppWinRT VSIX
-      run: |
-        $url = "https://cppwinrtteam.gallerycdn.vsassets.io/extensions/cppwinrtteam/cppwinrt101804264/2.0.240405.15/1712356759635/Microsoft.Windows.CppWinRT.vsix"
-        $destination = "C:\Temp\Microsoft.Windows.CppWinRT.vsix"
-        if (-not (Test-Path -Path "C:\Temp")) {
-            New-Item -ItemType Directory -Path "C:\Temp"
-        }
-        Invoke-WebRequest -Uri $url -OutFile $destination
-        $vsixInstallerPath = "C:\Program Files (x86)\Microsoft Visual Studio\Installer\resources\app\ServiceHub\Services\Microsoft.VisualStudio.Setup.Service\VSIXInstaller.exe"
-        if (Test-Path $vsixInstallerPath) {
-            & $vsixInstallerPath $destination
-        } else {
-            Write-Host "VSIXInstaller.exe not found. Please verify the path to the Visual Studio Build Tools 2022 installation."
-        }
-
     - name: Build UWP app
-      run: |
-        $msbuildPath = "C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\MSBuild\Current\Bin\MSBuild.exe"
-        if (Test-Path $msbuildPath) {
-          & $msbuildPath /p:Configuration=Release /p:Platform=${{ matrix.arch }} /t:Build windows/ReactReunion.sln
-        } else {
-          Write-Host "MSBuild.exe not found at $msbuildPath"
-          exit 1
-        }
+      run: msbuild /p:Configuration=Release /p:Platform=${{ matrix.arch }} /t:Build windows/ReactReunion.sln
 
     - name: Fail if previous step failed
       if: failure()
