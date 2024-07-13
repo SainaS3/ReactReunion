@@ -37,9 +37,6 @@ jobs:
     - name: Reinstall npm dependencies
       run: npm install
 
-    - name: Kill node processes
-      run: killall -9 node
-
     - name: Start npm with cache reset
       run: npm start -- --reset-cache
 
