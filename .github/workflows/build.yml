@@ -108,9 +108,6 @@ jobs:
       with:
         node-version: '18'
 
-    - name: Install dependencies
-      run: npm install
-
     - name: Install Chocolatey
       run: |
         Set-ExecutionPolicy Bypass -Scope Process -Force
@@ -131,8 +128,14 @@ jobs:
             'Microsoft.VisualStudio.Workload.NativeDesktop',
             'Microsoft.VisualStudio.Workload.Universal'
         )
+        $workloads = @(
+            'Microsoft.VisualStudio.Workload.ManagedDesktop',
+            'Microsoft.VisualStudio.Workload.NativeDesktop',
+            'Microsoft.VisualStudio.Workload.Universal'
+        )
         $components = $components -join ','
-        choco install visualstudio2022buildtools --params "'--add $components --includeRecommended --quiet --wait'"
+        $workloads = $workloads -join ','
+        choco install visualstudio2022buildtools --params "'--add $components --add $workloads --includeRecommended --quiet --wait'"
 
     - name: Add MSBuild to PATH
       run: echo "C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\MSBuild\Current\Bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8
@@ -151,6 +154,9 @@ jobs:
 
     - name: Install Yarn
       run: choco install yarn
+
+    - name: Install dependencies
+      run: npm install
 
     - name: Install MSBuild Log Viewer
       run: choco install msbuild-structured-log-viewer
