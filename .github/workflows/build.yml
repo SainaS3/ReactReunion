@@ -134,8 +134,8 @@ jobs:
         $components = $components -join ','
         choco install visualstudio2022buildtools --params "'--add $components --includeRecommended --quiet --wait'"
 
-    - name: Add MSBuild to PATH
-      uses: microsoft/setup-msbuild@v1.0.2
+    - name: Add msbuild to PATH
+      run: echo "$env:Program Files\Microsoft Visual Studio\2022\BuildTools\MSBuild\Current\Bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8
 
     - name: Enable Developer Mode
       run: |
@@ -174,7 +174,8 @@ jobs:
         }
 
     - name: Build UWP app
-      run: msbuild /p:Configuration=Release /p:Platform=$matrix.arch /t:Build windows/ReactReunion.sln
+      run: |
+        & "C:\Program Files\Microsoft Visual Studio\2022\BuildTools\MSBuild\Current\Bin\MSBuild.exe" /p:Configuration=Release /p:Platform=$matrix.arch /t:Build windows/ReactReunion.sln
 
     - name: Fail if previous step failed
       if: failure()
