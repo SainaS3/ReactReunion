@@ -135,7 +135,7 @@ jobs:
         choco install visualstudio2022buildtools --params "'--add $components --includeRecommended --quiet --wait'"
 
     - name: Add MSBuild to PATH
-      run: echo "C:\Program Files\Microsoft Visual Studio\2022\BuildTools\MSBuild\Current\Bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8
+      run: echo "C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\MSBuild\Current\Bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8
 
     - name: Enable Developer Mode
       run: |
@@ -166,7 +166,7 @@ jobs:
             New-Item -ItemType Directory -Path "C:\Temp"
         }
         Invoke-WebRequest -Uri $url -OutFile $destination
-        $vsixInstallerPath = "C:\Program Files\Microsoft Visual Studio\2022\BuildTools\Common7\IDE\VSIXInstaller.exe"
+        $vsixInstallerPath = "C:\Program Files (x86)\Microsoft Visual Studio\Installer\resources\app\ServiceHub\Services\Microsoft.VisualStudio.Setup.Service\VSIXInstaller.exe"
         if (Test-Path $vsixInstallerPath) {
             & $vsixInstallerPath $destination
         } else {
@@ -175,7 +175,7 @@ jobs:
 
     - name: Build UWP app
       run: |
-        $msbuildPath = "C:\Program Files\Microsoft Visual Studio\2022\BuildTools\MSBuild\Current\Bin\MSBuild.exe"
+        $msbuildPath = "C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\MSBuild\Current\Bin\MSBuild.exe"
         if (Test-Path $msbuildPath) {
           & $msbuildPath /p:Configuration=Release /p:Platform=$matrix.arch /t:Build windows/ReactReunion.sln
         } else {
