@@ -15,6 +15,9 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v2
 
+    - name: Clean build folder
+      run: xcodebuild clean -workspace ios/ReactReunion.xcworkspace -scheme ReactReunion
+
     - name: Setup Node.js
       uses: actions/setup-node@v3
       with:
@@ -40,15 +43,8 @@ jobs:
     - name: Install CocoaPods
       run: sudo gem install cocoapods
 
-    - name: Clean build folder
-      run: xcodebuild clean -workspace ios/ReactReunion.xcworkspace -scheme ReactReunion
-
     - name: Install dependencies
       run: pod install --project-directory=ios
-
-    - name: Reinstall Pods
-      working-directory: ios
-      run: pod deintegrate && pod install --repo-update
 
     - name: Setup keychain
       run: |
