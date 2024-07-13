@@ -64,7 +64,7 @@ jobs:
 
     - name: Build Mac Catalyst app
       working-directory: ios
-      run: xcodebuild -workspace ReactReunion.xcworkspace -scheme ReactReunion -sdk ios -destination 'platform=macOS,variant=Mac Catalyst'
+      run: xcodebuild -workspace ReactReunion.xcworkspace -scheme ReactReunion -sdk iphoneos -destination 'platform=macOS,variant=Mac Catalyst'
 
     - name: Fail if previous step failed
       if: failure()
