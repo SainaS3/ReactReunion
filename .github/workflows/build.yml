@@ -146,6 +146,9 @@ jobs:
     - name: Enable Long Paths
       run: Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem" -Name "LongPathsEnabled" -Value 1 -Type DWord
 
+    - name: Add msbuild to PATH
+      run: echo "::add-path::C:\Program Files\Microsoft Visual Studio\2022\BuildTools\MSBuild\Current\Bin"
+
     - name: Install Yarn
       run: choco install yarn
 
