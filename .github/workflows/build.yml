@@ -18,11 +18,6 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v2
 
-    - name: Setup Fastlane
-      uses: actions/checkout@v2
-      with:
-        repository: fastlane/fastlane
-
     - name: Setup cache for node_modules
       uses: actions/cache@v2
       with:
@@ -39,73 +34,31 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-pods-
 
-    - name: Cache Xcode Derived Data
+    - name: Setup cache for DerivedData
       uses: actions/cache@v2
       with:
         path: ios/DerivedData
-        key: ${{ runner.os }}-derived-data-${{ hashFiles('ios/ReactReunion.xcworkspace/contents.xcworkspacedata') }}
+        key: ${{ runner.os }}-deriveddata-${{ hashFiles('**/*.xcodeproj/project.pbxproj') }}
         restore-keys: |
-          ${{ runner.os }}-derived-data-
+          ${{ runner.os }}-deriveddata-
 
-    - name: Setup cache for ccache
-      uses: actions/cache@v2
-      with:
-        path: ~/Library/Caches/ccache
-        key: ${{ runner.os }}-ccache-${{ hashFiles('**/*.swift', '**/*.h', '**/*.m') }}
-        restore-keys: |
-          ${{ runner.os }}-ccache-
-
-    - name: Setup Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: '18'
-
-    - name: Install Watchman
-      run: brew install watchman
-
-    - name: Set up Ruby
-      uses: ruby/setup-ruby@v1
-      with:
-        ruby-version: '3.0'
-
-    - name: Remove node_modules (if cache is not hit)
-      run: rm -rf node_modules
+    - name: Setup ccache
+      run: |
+        brew install ccache
+        sudo ln -s "$(brew --prefix ccache)/libexec/clang" "/usr/local/bin/clang"
+        sudo ln -s "$(brew --prefix ccache)/libexec/clang++" "/usr/local/bin/clang++"
+        echo "max_size = 5G" >> ~/.ccache/ccache.conf
 
     - name: Install dependencies
       run: |
-        brew install ccache
-        export PATH="/usr/local/opt/ccache/libexec:$PATH"
-        npm install
-        pod install --project-directory=ios
-
-    - name: Setup keychain
-      run: |
-        security create-keychain -p "" build.keychain
-        security default-keychain -s build.keychain
-        security unlock-keychain -p "" build.keychain
-        security set-keychain-settings -t 3600 -u build.keychain
-      shell: bash
-
-    - name: Import certificate
-      env:
-        MACOS_CERTIFICATE: ${{ secrets.MACOS_CERTIFICATE }}
-        MACOS_CERTIFICATE_PASSWORD: ${{ secrets.MACOS_CERTIFICATE_PASSWORD }}
-      run: |
-        echo $MACOS_CERTIFICATE | base64 --decode > certificate.p12
-        security import certificate.p12 -k build.keychain -P $MACOS_CERTIFICATE_PASSWORD -T /usr/bin/codesign
-
-    - name: Set up ccache for Xcode
-      run: |
-        echo "export PATH=/usr/local/opt/ccache/libexec:$PATH" >> $GITHUB_ENV
-        echo "export CCACHE_DIR=$RUNNER_TEMP/ccache" >> $GITHUB_ENV
-        echo "export CC='ccache clang'" >> $GITHUB_ENV
-        echo "export CXX='ccache clang++'" >> $GITHUB_ENV
-        echo "export CCACHE_MAXSIZE=5G" >> $GITHUB_ENV
+        brew install ruby
+        sudo gem install bundler
+        bundle install
 
     - name: Run Fastlane for Mac Catalyst x86_64
       if: matrix.arch == 'x86_64'
       run: bundle exec fastlane ios build_catalyst_x86_64
-  
+
     - name: Run Fastlane for Mac Catalyst arm64
       if: matrix.arch == 'arm64'
       run: bundle exec fastlane ios build_catalyst_arm64
@@ -158,7 +111,6 @@ jobs:
       run: choco install msbuild-structured-log-viewer
 
     - name: Build UWP app
-      working-directory: windows
       run: |
         msbuild /t:Restore "/p:RestoreProjectStyle=PackagesConfig;RestorePackagesConfig=true" /p:Configuration=Release /p:Platform=${{ matrix.arch }} ReactReunion.sln
         msbuild /restore /p:Configuration=Release /p:Platform=${{ matrix.arch }} ReactReunion.sln
