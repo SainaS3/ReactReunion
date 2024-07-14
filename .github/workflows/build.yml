@@ -34,8 +34,21 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-pods-
 
-    - name: Clean build folder
-      run: xcodebuild clean -workspace ios/ReactReunion.xcworkspace -scheme ReactReunion
+    - name: Cache Xcode Derived Data
+      uses: actions/cache@v2
+      with:
+        path: ios/DerivedData
+        key: ${{ runner.os }}-derived-data-${{ hashFiles('ios/ReactReunion.xcworkspace/contents.xcworkspacedata') }}
+        restore-keys: |
+          ${{ runner.os }}-derived-data-
+
+    - name: Setup cache for ccache
+      uses: actions/cache@v2
+      with:
+        path: ~/Library/Caches/ccache
+        key: ${{ runner.os }}-ccache-${{ hashFiles('**/*.swift', '**/*.h', '**/*.m') }}
+        restore-keys: |
+          ${{ runner.os }}-ccache-
 
     - name: Setup Node.js
       uses: actions/setup-node@v3
@@ -54,10 +67,11 @@ jobs:
       run: rm -rf node_modules
 
     - name: Install dependencies
-      run: npm install
-
-    - name: Install dependencies
-      run: pod install --project-directory=ios
+      run: |
+        brew install ccache
+        export PATH="/usr/local/opt/ccache/libexec:$PATH"
+        npm install
+        pod install --project-directory=ios
 
     - name: Setup keychain
       run: |
@@ -75,9 +89,14 @@ jobs:
         echo $MACOS_CERTIFICATE | base64 --decode > certificate.p12
         security import certificate.p12 -k build.keychain -P $MACOS_CERTIFICATE_PASSWORD -T /usr/bin/codesign
 
+    - name: Set up ccache for Xcode
+      run: |
+        echo "export CC='ccache gcc'" >> $GITHUB_ENV
+        echo "export CXX='ccache g++'" >> $GITHUB_ENV
+
     - name: Build Mac Catalyst app
       working-directory: ios
-      run: xcodebuild -workspace ReactReunion.xcworkspace -scheme ReactReunion -sdk iphoneos -destination 'platform=macOS,variant=Mac Catalyst'
+      run: xcodebuild -workspace ReactReunion.xcworkspace -scheme ReactReunion -sdk iphoneos -destination 'platform=macOS,variant=Mac Catalyst' -configuration Release
 
     - name: Fail if previous step failed
       if: failure()
