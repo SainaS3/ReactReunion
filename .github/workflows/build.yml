@@ -9,8 +9,8 @@ on:
       - main
 
 jobs:
-  build-uikit:
-    runs-on: macos-13
+  build-ios:
+    runs-on: macos-latest
     strategy:
       matrix:
         arch: [x86_64, arm64]
@@ -45,15 +45,23 @@ jobs:
     - name: Setup ccache
       run: |
         brew install ccache
-        sudo ln -s "$(brew --prefix ccache)/libexec/clang" "/usr/local/bin/clang"
-        sudo ln -s "$(brew --prefix ccache)/libexec/clang++" "/usr/local/bin/clang++"
-        echo "max_size = 5G" >> ~/.ccache/ccache.conf
+        echo 'export PATH="/usr/local/opt/ccache/libexec:$PATH"' >> $BASH_ENV
+        source $BASH_ENV
+        mkdir -p ~/.ccache
+        echo "max_size = 5G" > ~/.ccache/ccache.conf
 
-    - name: Install dependencies
-      run: |
-        brew install ruby
-        sudo gem install bundler
-        bundle install
+    - name: Set up Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: '3.0'
+
+    - name: Install Watchman
+      run: brew install watchman
+
+    - name: Setup Fastlane
+      uses: actions/checkout@v2
+      with:
+        repository: fastlane/fastlane
 
     - name: Run Fastlane for Mac Catalyst x86_64
       if: matrix.arch == 'x86_64'
