@@ -106,7 +106,7 @@ jobs:
       working-directory: ios
       run: | 
         xcodebuild -workspace ReactReunion.xcworkspace -scheme ReactReunion -sdk iphoneos \
-        -destination 'generic/platform=macOS,arch=${{ matrix.arch }},variant=Mac Catalyst,name=Any Mac' \
+        -destination 'generic/platform=macOS,arch=${{ matrix.arch }},variant=Mac Catalyst' \
         -archivePath $RUNNER_TEMP/ReactReunion.xcarchive archive
 
     - name: Fail if previous step failed
