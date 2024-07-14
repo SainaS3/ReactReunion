@@ -13,7 +13,7 @@ jobs:
     runs-on: macos-13
     strategy:
       matrix:
-        arch: [x86_64, arm64]
+        arch: [x86_64-apple-ios-macabi, arm64-apple-ios-macabi]
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
@@ -104,7 +104,7 @@ jobs:
 
     - name: Build Mac Catalyst app
       working-directory: ios
-      run: xcodebuild -workspace ReactReunion.xcworkspace -scheme ReactReunion -sdk iphoneos -destination 'platform=macOS,variant=Mac Catalyst' -configuration Release
+      run: xcodebuild -workspace ReactReunion.xcworkspace -scheme ReactReunion -sdk iphoneos -destination 'platform=macOS,variant=Mac Catalyst' -configuration Release -arch ${{ matrix.arch }}
 
     - name: Fail if previous step failed
       if: failure()
