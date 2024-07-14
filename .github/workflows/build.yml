@@ -13,7 +13,7 @@ jobs:
     runs-on: macos-13
     strategy:
       matrix:
-        arch: [x86_64, armv8]
+        arch: [x86_64, arm64]
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
