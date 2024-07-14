@@ -18,6 +18,11 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v2
 
+    - name: Setup Fastlane
+      uses: actions/checkout@v2
+      with:
+        repository: fastlane/fastlane
+
     - name: Setup cache for node_modules
       uses: actions/cache@v2
       with:
