@@ -170,8 +170,7 @@ jobs:
     - name: Build UWP app
       working-directory: windows
       run: |
-        msbuild /t:Restore "/p:RestoreProjectStyle=PackagesConfig;RestorePackagesConfig=true" \
-        /p:Configuration=Release /p:Platform=${{ matrix.arch }} ReactReunion.sln
+        msbuild /t:Restore "/p:RestoreProjectStyle=PackagesConfig;RestorePackagesConfig=true" /p:Configuration=Release /p:Platform=${{ matrix.arch }} ReactReunion.sln
         msbuild /restore /p:Configuration=Release /p:Platform=${{ matrix.arch }} ReactReunion.sln
         msbuild /p:Configuration=Release /p:Platform=${{ matrix.arch }} /t:Build ReactReunion.sln
 
