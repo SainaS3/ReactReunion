@@ -149,8 +149,9 @@ jobs:
 
     - name: Enable Long Paths
       run: |
-        Set-ItemProperty -Name "LongPathsEnabled" -Value 1 -Type DWord |
-        -Path "HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem"
+        $RegistryPath = "HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem"
+        Set-ItemProperty -Name "LongPathsEnabled" -Value 1 -Type DWord -Path $RegistryPath
+
 
     - name: Setup cache for Metro Bundler
       uses: actions/cache@v2
