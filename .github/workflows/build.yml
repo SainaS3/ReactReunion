@@ -13,7 +13,7 @@ jobs:
     runs-on: macos-13
     strategy:
       matrix:
-        arch: [x86_64, arm64]
+        arch: [x86_64, armv8]
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
@@ -106,7 +106,7 @@ jobs:
       working-directory: ios
       run: | 
         xcodebuild -workspace ReactReunion.xcworkspace -scheme ReactReunion -sdk iphoneos \
-        -destination 'generic/platform=macOS,arch=${{ matrix.arch }},variant=Mac Catalyst' \
+        -destination 'generic/platform=macOS,arch=${{ matrix.arch }},variant=Mac Catalyst,name=Any Mac' \
         -archivePath $RUNNER_TEMP/ReactReunion.xcarchive archive
 
     - name: Fail if previous step failed
@@ -148,7 +148,9 @@ jobs:
         Set-ItemProperty -Path $RegistryKeyPath -Name AllowDevelopmentWithoutDevLicense -Value 1 -Type DWord
 
     - name: Enable Long Paths
-      run: Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem" -Name "LongPathsEnabled" -Value 1 -Type DWord
+      run: |
+        Set-ItemProperty -Name "LongPathsEnabled" -Value 1 -Type DWord |
+        -Path "HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem"
 
     - name: Setup cache for Metro Bundler
       uses: actions/cache@v2
@@ -167,7 +169,8 @@ jobs:
     - name: Build UWP app
       working-directory: windows
       run: |
-        msbuild /t:Restore "/p:RestoreProjectStyle=PackagesConfig;RestorePackagesConfig=true" /p:Configuration=Release /p:Platform=${{ matrix.arch }} ReactReunion.sln
+        msbuild /t:Restore "/p:RestoreProjectStyle=PackagesConfig;RestorePackagesConfig=true" \
+        /p:Configuration=Release /p:Platform=${{ matrix.arch }} ReactReunion.sln
         msbuild /restore /p:Configuration=Release /p:Platform=${{ matrix.arch }} ReactReunion.sln
         msbuild /p:Configuration=Release /p:Platform=${{ matrix.arch }} /t:Build ReactReunion.sln
 
