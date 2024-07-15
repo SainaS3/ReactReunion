@@ -104,10 +104,16 @@ jobs:
 
     - name: Build Mac Catalyst app
       working-directory: ios
-      run: | 
+      run: |
         xcodebuild -workspace ReactReunion.xcworkspace -scheme ReactReunion -sdk iphoneos \
         -destination 'generic/platform=macOS,arch=${{ matrix.arch }},variant=Mac Catalyst' \
         -archivePath $RUNNER_TEMP/ReactReunion.xcarchive archive -configuration Release
+
+    - name: Export Archive
+      working-directory: ios
+      run: |
+        xcodebuild -exportArchive -archivePath $RUNNER_TEMP/ReactReunion.xcarchive \
+        -exportPath $RUNNER_TEMP/ReactReunion -exportOptionsPlist exportOptions.plist
 
     - name: Fail if previous step failed
       if: failure()
