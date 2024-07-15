@@ -18,48 +18,7 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v2
 
-    - name: Setup cache for node_modules
-      uses: actions/cache@v2
-      with:
-        path: node_modules
-        key: ${{ runner.os }}-node_modules-${{ hashFiles('**/package-lock.json') }}
-        restore-keys: |
-          ${{ runner.os }}-node_modules-
-
-    - name: Setup cache for CocoaPods
-      uses: actions/cache@v2
-      with:
-        path: ios/Pods
-        key: ${{ runner.os }}-pods-${{ hashFiles('**/Podfile.lock') }}
-        restore-keys: |
-          ${{ runner.os }}-pods-
-
-    - name: Cache Xcode Derived Data
-      uses: actions/cache@v2
-      with:
-        path: ios/DerivedData
-        key: ${{ runner.os }}-derived-data-${{ hashFiles('ios/ReactReunion.xcworkspace/contents.xcworkspacedata') }}
-        restore-keys: |
-          ${{ runner.os }}-derived-data-
-
-    - name: Setup cache for Metro Bundler
-      uses: actions/cache@v2
-      with:
-        path: .metro-cache
-        key: ${{ runner.os }}-metro-${{ hashFiles('**/*.js', '**/*.jsx', '**/*.json', '**/*.ts', '**/*.tsx') }}
-        restore-keys: |
-          ${{ runner.os }}-metro-
-
-    - name: Setup cache for ccache
-      uses: actions/cache@v2
-      with:
-        path: ~/Library/Caches/ccache
-        key: ${{ runner.os }}-ccache-${{ hashFiles('**/*.swift', '**/*.h', '**/*.m') }}
-        restore-keys: |
-          ${{ runner.os }}-ccache-
-            
-    - name: Setup Node.js
-      uses: actions/setup-node@v3
+    - uses: actions/setup-node@v3
       with:
         node-version: '18'
 
@@ -71,36 +30,11 @@ jobs:
       with:
         ruby-version: '3.0'
 
-    - name: Remove node_modules (if cache is not hit)
-      run: rm -rf node_modules
-
     - name: Install dependencies
       run: |
-        brew install ccache
-        export PATH="/usr/local/opt/ccache/libexec:$PATH"
         npm install
-        pod install --project-directory=ios
-
-    - name: Setup keychain
-      run: |
-        security create-keychain -p "" build.keychain
-        security default-keychain -s build.keychain
-        security unlock-keychain -p "" build.keychain
-        security set-keychain-settings -t 3600 -u build.keychain
-      shell: bash
-
-    - name: Import certificate
-      env:
-        MACOS_CERTIFICATE: ${{ secrets.MACOS_CERTIFICATE }}
-        MACOS_CERTIFICATE_PASSWORD: ${{ secrets.MACOS_CERTIFICATE_PASSWORD }}
-      run: |
-        echo $MACOS_CERTIFICATE | base64 --decode > certificate.p12
-        security import certificate.p12 -k build.keychain -P $MACOS_CERTIFICATE_PASSWORD -T /usr/bin/codesign
-
-    - name: Set up ccache for Xcode
-      run: |
-        echo "export CC='ccache gcc'" >> $GITHUB_ENV
-        echo "export CXX='ccache g++'" >> $GITHUB_ENV
+        cd ios
+        pod install
 
     - name: Build Mac Catalyst app
       working-directory: ios
@@ -128,44 +62,17 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v2
 
-    - name: Setup cache for node_modules
-      uses: actions/cache@v2
-      with:
-        path: node_modules
-        key: ${{ runner.os }}-node_modules-${{ hashFiles('**/package-lock.json') }}
-        restore-keys: |
-          ${{ runner.os }}-node_modules-
-
-    - name: Setup Node.js
-      uses: actions/setup-node@v3
+    - uses: actions/setup-node@v3
       with:
         node-version: '18'
 
     - name: Add msbuild to PATH
       uses: microsoft/setup-msbuild@v2
 
-    - name: Enable Developer Mode
-      run: |
-        Set-ExecutionPolicy Bypass -Scope Process -Force
-        $RegistryKeyPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\AppModelUnlock"
-        if (-not (Test-Path -Path $RegistryKeyPath)) {
-          New-Item -Path $RegistryKeyPath -ItemType Directory -Force
-        }
-        Set-ItemProperty -Path $RegistryKeyPath -Name AllowDevelopmentWithoutDevLicense -Value 1 -Type DWord
-
     - name: Enable Long Paths
       run: |
         $RegistryPath = "HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem"
         Set-ItemProperty -Name "LongPathsEnabled" -Value 1 -Type DWord -Path $RegistryPath
-
-
-    - name: Setup cache for Metro Bundler
-      uses: actions/cache@v2
-      with:
-        path: .metro-cache
-        key: ${{ runner.os }}-metro-${{ hashFiles('**/*.js', '**/*.jsx', '**/*.json', '**/*.ts', '**/*.tsx') }}
-        restore-keys: |
-          ${{ runner.os }}-metro-
 
     - name: Install dependencies
       run: npm install
