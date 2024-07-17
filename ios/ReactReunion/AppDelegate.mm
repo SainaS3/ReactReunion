@@ -1,6 +1,8 @@
 #import "AppDelegate.h"
-
 #import <React/RCTBundleURLProvider.h>
+
+// Include a common C++ header to ensure GitHub recognizes this as Objective-C++
+#include <vector>
 
 @implementation AppDelegate
 
@@ -10,6 +12,9 @@
   // You can add your custom initial props in the dictionary below.
   // They will be passed down to the ViewController used by React Native.
   self.initialProps = @{};
+
+  // C++ code snippet
+  std::vector<int> holderCpp = {1};
 
   return [super application:application didFinishLaunchingWithOptions:launchOptions];
 }
