@@ -1,8 +1,10 @@
 #import "AppDelegate.h"
 #import <React/RCTBundleURLProvider.h>
 
-// Include a common C++ header to ensure GitHub recognizes this as Objective-C++
-#include <vector>
+#ifdef __cplusplus
+// Define the C++ variable
+std::vector<int> holderCpp = {1};
+#endif
 
 @implementation AppDelegate
 
@@ -13,8 +15,8 @@
   // They will be passed down to the ViewController used by React Native.
   self.initialProps = @{};
 
-  // C++ code snippet
-  std::vector<int> holderCpp = {1};
+  // Use the C++ variable
+  holderCpp.push_back(2);
 
   return [super application:application didFinishLaunchingWithOptions:launchOptions];
 }

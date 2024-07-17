@@ -4,6 +4,8 @@
 #import <React/RCTLog.h>
 #import <React/RCTRootView.h>
 
+#include <vector>
+
 #define TIMEOUT_SECONDS 600
 #define TEXT_TO_LOOK_FOR @"Welcome to React"
 
@@ -41,6 +43,9 @@
         }
       });
 #endif
+
+  // C++ code snippet
+  std::vector<int> holderCpp = {1};
 
   while ([date timeIntervalSinceNow] > 0 && !foundElement && !redboxError) {
     [[NSRunLoop mainRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];
