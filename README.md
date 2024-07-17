@@ -1,79 +1,89 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
-
 # Getting Started
 
->**Note**: Make sure you have completed the [React Native - Environment Setup](https://reactnative.dev/docs/environment-setup) instructions till "Creating a new application" step, before proceeding.
+## Step 1: Install Dependencies Using Node.js Script
 
-## Step 1: Start the Metro Server
+To streamline the installation of dependencies, run the provided Node.js script. From the root of your project, execute the following command:
+
+```bash
+node setupReactNative.js
+```
+
+## Step 2: Start the Metro Server
 
 First, you will need to start **Metro**, the JavaScript _bundler_ that ships _with_ React Native.
 
 To start Metro, run the following command from the _root_ of your React Native project:
 
 ```bash
-# using npm
 npm start
-
-# OR using Yarn
-yarn start
 ```
 
-## Step 2: Start your Application
+## Step 3: Start your Application
 
-Let Metro Bundler run in its _own_ terminal. Open a _new_ terminal from the _root_ of your React Native project. Run the following command to start your _Android_ or _iOS_ app:
+Let Metro Bundler run in its _own_ terminal. Open a _new_ terminal from the _root_ of your React Native project. Run the following command to start your application:
 
-### For Android
+### For macOS (Catalyst)
+
+> **Note**: Make sure you have the iOS SDK installed since this project targets macOS Catalyst.
 
 ```bash
-# using npm
-npm run android
-
-# OR using Yarn
-yarn android
+npx react-native run-ios --device "My Mac"
 ```
 
-### For iOS
+### For Windows
+
+> **Note**: This project uses UWP (Universal Windows Platform). Make sure you have your Windows development environment set up accordingly.
 
 ```bash
-# using npm
-npm run ios
-
-# OR using Yarn
-yarn ios
+npx react-native run-windows
 ```
 
-If everything is set up _correctly_, you should see your new app running in your _Android Emulator_ or _iOS Simulator_ shortly provided you have set up your emulator/simulator correctly.
+If everything is set up _correctly_, you should see your new app running in your macOS Catalyst or Windows environment shortly, provided you have set up your system correctly.
 
-This is one way to run your app — you can also run it directly from within Android Studio and Xcode respectively.
+This is one way to run your app — you can also run it directly from within Xcode and Visual Studio respectively.
 
-## Step 3: Modifying your App
+## Step 4: Modifying your App
 
 Now that you have successfully run the app, let's modify it.
 
-1. Open `App.tsx` in your text editor of choice and edit some lines.
-2. For **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Developer Menu** (<kbd>Ctrl</kbd> + <kbd>M</kbd> (on Window and Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (on macOS)) to see your changes!
+### Using VS Code
 
-   For **iOS**: Hit <kbd>Cmd ⌘</kbd> + <kbd>R</kbd> in your iOS Simulator to reload the app and see your changes!
+1. Open your application's folder in VS Code.
+2. Install the React Native Tools plugin for VS Code.
+3. Open `App.tsx` in your text editor of choice and edit some lines.
+4. Create a new file in the application's root directory, `.vscode/launch.json`, and paste the following configuration:
+
+    ```json
+    {
+      "version": "0.2.0",
+      "configurations": [
+        {
+          "name": "Debug macOS",
+          "cwd": "${workspaceFolder}",
+          "type": "reactnative",
+          "request": "launch",
+          "platform": "ios",
+          "target": "My Mac"
+        },
+        {
+          "name": "Debug Windows",
+          "cwd": "${workspaceFolder}",
+          "type": "reactnative",
+          "request": "launch",
+          "platform": "windows"
+        }
+      ]
+    }
+    ```
+
+5. Press F5 or navigate to the debug menu (alternatively press <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>D</kbd>) and in the Debug drop-down select "Debug macOS" or "Debug Windows" and press the green arrow to run the application.
+
+### Reloading to See Your Changes
+
+For **macOS (Catalyst)**: Hit <kbd>Cmd ⌘</kbd> + <kbd>R</kbd> in your macOS application to reload the app and see your changes!
+
+For **Windows**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Developer Menu** (<kbd>Ctrl</kbd> + <kbd>M</kbd> (on Windows and Linux)) to see your changes!
 
 ## Congratulations! :tada:
 
 You've successfully run and modified your React Native App. :partying_face:
-
-### Now what?
-
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [Introduction to React Native](https://reactnative.dev/docs/getting-started).
-
-# Troubleshooting
-
-If you can't get this to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
-
-# Learn More
-
-To learn more about React Native, take a look at the following resources:
-
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
