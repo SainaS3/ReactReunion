@@ -20,10 +20,30 @@ const runCommand = async (command) => {
   }
 };
 
+const installHomebrewMac = async () => {
+  try {
+    await runCommand('/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"');
+    console.log('Homebrew installed successfully');
+  } catch (error) {
+    console.error('Failed to install Homebrew:', error);
+  }
+};
+
+const installChocolateyWindows = async () => {
+  try {
+    const executionPolicy = await runCommand('powershell -Command "Get-ExecutionPolicy"');
+    if (executionPolicy === 'Restricted') {
+      await runCommand('powershell -Command "Set-ExecutionPolicy Bypass -Scope Process -Force"');
+    }
+    await runCommand('powershell -Command "Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString(\'https://community.chocolatey.org/install.ps1\'))"');
+    console.log('Chocolatey installed successfully');
+  } catch (error) {
+    console.error('Failed to install Chocolatey:', error);
+  }
+};
+
 const checkFreeSpace = async () => {
-  const totalSpace = os.totalmem();
-  const freeSpace = os.freemem();
-  const freeSpaceGB = freeSpace / (1024 ** 3);
+  const freeSpaceGB = os.freemem() / (1024 ** 3);
   console.log(`Free space: ${freeSpaceGB.toFixed(2)} GB`);
   return freeSpaceGB > 15;
 };
@@ -131,6 +151,15 @@ const enableDeveloperModeWindows = async () => {
   }
 };
 
+const enableLongPathSupportWindows = async () => {
+  try {
+    await runCommand('powershell -Command "Set-ItemProperty -Path HKLM:\\SYSTEM\\CurrentControlSet\\Control\\FileSystem -Name LongPathsEnabled -Value 1 -Type DWord"');
+    console.log('Long path support enabled');
+  } catch (error) {
+    console.error('Failed to enable long path support:', error);
+  }
+};
+
 const checkVisualStudioInstallation = async () => {
   try {
     const vsWhere = `${process.env['ProgramFiles(x86)']}\\Microsoft Visual Studio\\Installer\\vswhere.exe`;
@@ -223,7 +252,55 @@ const installCppWinRTVSIX = async () => {
   }
 };
 
+const checkWindowsVersion = async () => {
+  const version = os.release();
+  const major = parseInt(version.split('.')[0], 10);
+  const minor = parseInt(version.split('.')[1], 10);
+  const build = parseInt(version.split('.')[2], 10);
+  const isCompatible = major >= 10 && minor >= 0 && build >= 17763;
+  console.log(`Windows version: ${version}`);
+  return isCompatible;
+};
+
 const setupReactNativeEnvironment = async () => {
+  console.log('Checking Windows version...');
+  const windowsVersionCheck = await checkWindowsVersion();
+  console.log(`Windows version check ${windowsVersionCheck ? 'passed' : 'failed'}`);
+  if (!windowsVersionCheck) {
+    console.error('Windows version is not compatible. Please update your Windows to version 10.0.17763.0 or higher.');
+    return;
+  }
+
+  if (isWindows) {
+    console.log('Checking Chocolatey installation...');
+    let chocoInstalled = false;
+    try {
+      await runCommand('choco -v');
+      chocoInstalled = true;
+    } catch {
+      console.log('Chocolatey is not installed. Installing Chocolatey...');
+      await installChocolateyWindows();
+    }
+    if (!chocoInstalled) {
+      console.error('Chocolatey is not installed correctly.');
+      return;
+    }
+  } else {
+    console.log('Checking Homebrew installation...');
+    let brewInstalled = false;
+    try {
+      await runCommand('brew -v');
+      brewInstalled = true;
+    } catch {
+      console.log('Homebrew is not installed. Installing Homebrew...');
+      await installHomebrewMac();
+    }
+    if (!brewInstalled) {
+      console.error('Homebrew is not installed correctly.');
+      return;
+    }
+  }
+
   console.log('Checking Node.js version...');
   let isNodeInstalled = await checkNodeVersion();
   if (!isNodeInstalled) {
@@ -239,10 +316,18 @@ const setupReactNativeEnvironment = async () => {
   console.log('Checking installed memory...');
   const memoryCheck = await checkInstalledMemory();
   console.log(`Installed memory check ${memoryCheck ? 'passed' : 'failed'}`);
+  if (!memoryCheck) {
+    console.error('Not enough memory installed. At least 16 GB is required.');
+    return;
+  }
 
   console.log('Checking free space...');
   const freeSpaceCheck = await checkFreeSpace();
   console.log(`Free space check ${freeSpaceCheck ? 'passed' : 'failed'}`);
+  if (!freeSpaceCheck) {
+    console.error('Not enough free space. At least 15 GB is required.');
+    return;
+  }
 
   console.log('Checking Git installation...');
   let gitCheck = await checkGitInstallation();
@@ -271,6 +356,9 @@ const setupReactNativeEnvironment = async () => {
   if (isWindows) {
     console.log('Enabling developer mode...');
     await enableDeveloperModeWindows();
+
+    console.log('Enabling long path support...');
+    await enableLongPathSupportWindows();
 
     console.log('Checking Visual Studio installation...');
     const vsCheck = await checkVisualStudioInstallation();
@@ -306,5 +394,8 @@ if (isWindows) {
     console.error('Error during setup:', error);
   });
 } else {
-  console.error('This setup script is for Windows only.');
+  console.log('Checking Homebrew installation...');
+  setupReactNativeEnvironment().catch((error) => {
+    console.error('Error during setup:', error);
+  });
 }
