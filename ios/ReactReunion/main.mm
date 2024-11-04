@@ -1,5 +1,5 @@
 #import <UIKit/UIKit.h>
-#import "AppDelegate.h"
+#import "AppDelegate.hpp"
 
 // Include a common C++ header to ensure GitHub recognizes this as Objective-C++
 #include <vector>

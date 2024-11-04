@@ -1,4 +1,4 @@
-#import "AppDelegate.h"
+#import "AppDelegate.hpp"
 #import <React/RCTBundleURLProvider.h>
 
 #ifdef __cplusplus
