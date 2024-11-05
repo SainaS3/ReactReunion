@@ -37,13 +37,14 @@ jobs:
         cd ios
         pod install
 
-    - name: Cache CocoaPods and Derived Data
-      uses: actions/cache@v3
+    - name: Cache Xcode and CocoaPods
+      uses: actions/cache@v4
       with:
         path: |
           ~/Library/Developer/Xcode/DerivedData
+          ~/Library/Caches/com.apple.dt.Xcode
           ios/Pods
-        key: ${{ runner.os }}-pods-${{ hashFiles('ios/Podfile.lock') }}
+        key: ${{ runner.os }}-xcode-cocoapods-${{ hashFiles('**/*.xcodeproj/**/*.pbxproj', 'ios/Podfile.lock') }}
 
     - name: Lint JavaScript
       run: |
@@ -75,11 +76,11 @@ jobs:
         arch: [x64, arm64]
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
 
-    - uses: actions/setup-node@v3
+    - uses: actions/setup-node@v4
       with:
-        node-version: '18'
+        node-version: '22'
 
     - name: Add msbuild to PATH
       uses: microsoft/setup-msbuild@v2
@@ -91,6 +92,14 @@ jobs:
 
     - name: Install dependencies
       run: npm install
+
+    - name: Cache MSBuild Artifacts
+      uses: actions/cache@v4
+      with:
+        path: |
+          windows/**/bin
+          windows/**/obj
+        key: ${{ runner.os }}-msbuild-${{ hashFiles('windows/**/*.vcxproj', 'windows/**/*.csproj', 'windows/**/*.sln') }}   
 
     - name: Lint JavaScript
       run: |
