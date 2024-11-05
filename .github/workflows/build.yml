@@ -47,7 +47,7 @@ jobs:
 
     - name: Lint JavaScript
       run: |
-        npm run lint
+        npm run lint -- --fix
 
     - name: Run JavaScript Tests
       run: |
@@ -94,7 +94,7 @@ jobs:
 
     - name: Lint JavaScript
       run: |
-        npm run lint
+        npm run lint -- --fix
 
     - name: Run JavaScript Tests
       run: |
