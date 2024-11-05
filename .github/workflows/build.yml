@@ -21,7 +21,7 @@ jobs:
 
     - uses: actions/setup-node@v4
       with:
-        node-version: '18'
+        node-version: '22'
 
     - name: Install Watchman
       run: brew install watchman
@@ -36,6 +36,22 @@ jobs:
         npm install
         cd ios
         pod install
+
+    - name: Cache CocoaPods and Derived Data
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/Library/Developer/Xcode/DerivedData
+          ios/Pods
+        key: ${{ runner.os }}-pods-${{ hashFiles('ios/Podfile.lock') }}
+
+    - name: Lint JavaScript
+      run: |
+        npm run lint
+
+    - name: Run JavaScript Tests
+      run: |
+        npm test
 
     - name: Bundle JavaScript for macOS
       run: |
@@ -76,6 +92,14 @@ jobs:
     - name: Install dependencies
       run: npm install
 
+    - name: Lint JavaScript
+      run: |
+        npm run lint
+
+    - name: Run JavaScript Tests
+      run: |
+        npm test
+
     - name: Bundle JavaScript for Windows
       run: |
         npx react-native bundle --entry-file index.js --platform windows --dev false --bundle-output windows/main.jsbundle --assets-dest windows
@@ -88,7 +112,7 @@ jobs:
       run: |
         msbuild /t:Restore "/p:RestoreProjectStyle=PackagesConfig;RestorePackagesConfig=true" /p:Configuration=Release /p:Platform=${{ matrix.arch }} ReactReunion.sln
         msbuild /restore /p:Configuration=Release /p:Platform=${{ matrix.arch }} ReactReunion.sln
-        msbuild /p:Configuration=Release /p:Platform=${{ matrix.arch }} /t:Build ReactReunion.sln
+        msbuild /p:Configuration=Release /p:Platform=${{ matrix.arch }} /verbosity:detailed /t:Build ReactReunion.sln
 
     - name: Fail if previous step failed
       if: failure()
