@@ -46,6 +46,10 @@ jobs:
           ios/Pods
         key: ${{ runner.os }}-xcode-cocoapods-${{ hashFiles('**/*.xcodeproj/**/*.pbxproj', 'ios/Podfile.lock') }}
 
+    - name: Prettier Auto Fix
+      run: |
+        npx prettier --write .
+
     - name: Lint JavaScript
       run: |
         npm run lint -- --fix
@@ -100,6 +104,10 @@ jobs:
           windows/**/bin
           windows/**/obj
         key: ${{ runner.os }}-msbuild-${{ hashFiles('windows/**/*.vcxproj', 'windows/**/*.csproj', 'windows/**/*.sln') }}   
+
+    - name: Prettier Auto Fix
+      run: |
+        npx prettier --write .
 
     - name: Lint JavaScript
       run: |
