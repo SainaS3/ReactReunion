@@ -16,9 +16,9 @@ jobs:
         arch: [x86_64, arm64]
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
 
-    - uses: actions/setup-node@v3
+    - uses: actions/setup-node@v4
       with:
         node-version: '18'
 
@@ -36,21 +36,9 @@ jobs:
         cd ios
         pod install
 
-    - name: Setup keychain
+    - name: Bundle JavaScript for macOS
       run: |
-        security create-keychain -p "" build.keychain
-        security default-keychain -s build.keychain
-        security unlock-keychain -p "" build.keychain
-        security set-keychain-settings -t 3600 -u build.keychain
-      shell: bash
-    
-    - name: Import certificate
-      env:
-        MACOS_CERTIFICATE: ${{ secrets.MACOS_CERTIFICATE }}
-        MACOS_CERTIFICATE_PASSWORD: ${{ secrets.MACOS_CERTIFICATE_PASSWORD }}
-      run: |
-        echo $MACOS_CERTIFICATE | base64 --decode > certificate.p12
-        security import certificate.p12 -k build.keychain -P $MACOS_CERTIFICATE_PASSWORD -T /usr/bin/codesign
+        npx react-native bundle --entry-file index.js --platform ios --dev false --bundle-output ios/main.jsbundle --assets-dest ios
 
     - name: Build Mac Catalyst app
       working-directory: ios
@@ -86,6 +74,10 @@ jobs:
 
     - name: Install dependencies
       run: npm install
+
+    - name: Bundle JavaScript for Windows
+      run: |
+        npx react-native bundle --entry-file index.js --platform windows --dev false --bundle-output windows/main.jsbundle --assets-dest windows
 
     - name: Install MSBuild Log Viewer
       run: choco install msbuild-structured-log-viewer
