@@ -23,8 +23,7 @@ jobs:
       with:
         node-version: '22'
 
-    - name: Install Watchman
-      run: brew install watchman
+    # Removed Watchman installation step
 
     - name: Set up Ruby
       uses: ruby/setup-ruby@v1
@@ -85,6 +84,9 @@ jobs:
     - uses: actions/setup-node@v4
       with:
         node-version: '22'
+
+    - name: Enable Corepack
+      run: corepack enable
 
     - name: Add msbuild to PATH
       uses: microsoft/setup-msbuild@v2
